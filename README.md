@@ -1,55 +1,94 @@
 # AI Context Injector
 
-Tag-based context retrieval for AI assistants with anti-hallucination safeguards.
+> Framework-agnostic Python library for tag-based context injection with anti-hallucination safeguards
 
-🚧 **Work in Progress** - Initial development using OpenSpec workflow
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![Status: Planning](https://img.shields.io/badge/status-planning-orange.svg)]()
 
-## Overview
+## What is this?
 
-AI Context Injector provides a clean, framework-agnostic way to inject relevant context into AI assistant prompts using simple tags like `@memory`, `@code`, and `@session`.
+AI Context Injector solves the problem of **persistent, structured context** for AI assistants. Instead of repeatedly explaining project details, past decisions, and code context, use simple tags like `@memory`, `@code`, and `@session` to inject relevant context automatically.
 
-**Key Features:**
-- 🏷️ Tag-based retrieval (`@memory query`, `@code function`, `@session summary`)
-- 🛡️ Research-backed anti-hallucination techniques
-- 🔒 Hard project isolation (never mix contexts accidentally)
-- 🔌 Plugin system for custom providers
-- ⚡ Fast (<20ms for most queries)
-- 🌐 Framework-agnostic (works with any AI API)
+## Key Features
 
-## Status
+- **Tag-based retrieval**: `@memory keyboard layout`, `@code ContextItem class`
+- **Hard project isolation**: Never mix contexts without explicit user intent
+- **Anti-hallucination**: Research-backed formatting with delimiters, metadata, citations
+- **Plugin system**: Custom providers via simple interface
+- **Framework-agnostic**: Works with OpenAI, Anthropic, Ollama, any LLM
+- **Fast**: <20ms for typical queries
 
-Currently in initial development. See `openspec/changes/initial-release/` for design documents.
+## Quick Example
 
-## Inspiration
+```python
+from ai_context_injector import ContextInjector, IContextProvider
 
-Based on working implementation from [hackDark](https://github.com/dark/hackDark) with improvements inspired by:
-- Continue.dev (tag-based retrieval)
-- Cursor AI (anti-hallucination)
-- OpenAI Assistants (citations)
-- n8n (plugin architecture)
+# Define your provider (or use examples)
+class MyMemoryProvider(IContextProvider):
+    def retrieve(self, request):
+        # Your retrieval logic here
+        return [...]
 
-## Advantages over Continue.dev
+# Initialize and use
+injector = ContextInjector(
+    providers={'@memory': MyMemoryProvider()},
+    project="my-project"
+)
+
+context = injector.inject("@memory database decisions")
+# Returns formatted context ready for your LLM prompt
+```
+
+## Why AI Context Injector vs Continue.dev?
 
 | Feature | Continue.dev | AI Context Injector |
 |---------|--------------|---------------------|
-| Project isolation | ❌ Weak | ✅ Hard |
-| Anti-hallucination | ~ Basic | ✅ Research-backed |
-| Citations | ❌ No | ✅ Yes |
-| Cross-project | Auto (risky) | ✅ Explicit modifier |
-| Framework | VSCode only | ✅ Any framework |
+| Project isolation | ❌ Weak | ✅ Hard (never auto-mix) |
+| Anti-hallucination | ~ Basic | ✅ 5 critical rules + citations |
+| Cross-project | Auto (risky) | ✅ Explicit `:all` modifier |
+| Framework | VSCode only | ✅ Any (OpenAI, Claude, etc) |
+| Citations | ❌ No | ✅ [memory:project:date] |
 
-## Development
+## Status
 
-This project uses [OpenSpec](https://openspec.dev) for spec-driven development.
+🚧 **Currently in development** - See [OpenSpec change `initial-release`](./openspec/changes/initial-release/) for detailed specifications and progress.
 
-```bash
-# See current status
-npx openspec status
+### Roadmap
 
-# View design documents
-cat openspec/changes/initial-release/design.md
-```
+- ✅ Proposal (completed)
+- ✅ Design (completed)
+- ✅ Specifications (completed)
+- ✅ Tasks breakdown (completed)
+- ⏳ Implementation (in progress)
+- ⏳ Testing & documentation
+- ⏳ PyPI release
+
+## Prior Art
+
+Based on proven code from [hackDark](https://github.com/dark/hackDark):
+- 1,473 lines of tested code
+- 17.7ms performance proven
+- Tag parser tested with 3 scenarios
+- End-to-end working with real memory system
+
+## Documentation
+
+Full documentation will be available after v1.0.0 release. For now, see:
+
+- [Proposal](./openspec/changes/initial-release/proposal.md) - Problem statement and solution overview
+- [Design](./openspec/changes/initial-release/design.md) - Technical architecture and decisions
+- [Specs](./openspec/changes/initial-release/specs/) - Detailed requirements for each capability
+- [Tasks](./openspec/changes/initial-release/tasks.md) - Implementation checklist
+
+## Contributing
+
+Contributions welcome after v1.0.0 release. For now, follow progress in the OpenSpec documentation.
 
 ## License
 
-MIT
+MIT (to be confirmed)
+
+## Author
+
+Built with [OpenSpec](https://github.com/openspec/openspec) - Spec-Driven Development
