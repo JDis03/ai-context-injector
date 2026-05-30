@@ -67,7 +67,7 @@ class ContextItem:
         
         if self.source == "memory":
             return f"[memory:{self.project}:{date_str}]"
-        elif self.source == "codebase":
+        elif self.source == "code":
             if self.file_path and self.line_range:
                 return f"[code:{self.file_path}:{self.line_range[0]}-{self.line_range[1]}]"
             elif self.file_path:

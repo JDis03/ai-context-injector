@@ -42,7 +42,7 @@ class TestContextItem:
         """Test citation for code with file and line range."""
         item = ContextItem(
             content="def parse(): ...",
-            source="codebase",
+            source="code",
             project="ai-context-injector",
             metadata={},
             relevance_score=0.85,
@@ -57,7 +57,7 @@ class TestContextItem:
         """Test citation for code with file but no lines."""
         item = ContextItem(
             content="File content",
-            source="codebase",
+            source="code",
             project="test",
             metadata={},
             relevance_score=0.8,
@@ -71,7 +71,7 @@ class TestContextItem:
         """Test citation for code without file path."""
         item = ContextItem(
             content="Code snippet",
-            source="codebase",
+            source="code",
             project="test",
             metadata={},
             relevance_score=0.8,
