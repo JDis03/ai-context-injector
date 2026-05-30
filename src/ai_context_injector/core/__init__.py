@@ -2,6 +2,7 @@
 
 from .types import ContextItem, ContextRequest, ContextResponse, ParsedTag
 from .parser import TagParser, parse_tags
+from .formatter import ContextFormatter, format_context
 
 __all__ = [
     "ContextItem",
@@ -10,4 +11,6 @@ __all__ = [
     "ParsedTag",
     "TagParser",
     "parse_tags",
+    "ContextFormatter",
+    "format_context",
 ]
