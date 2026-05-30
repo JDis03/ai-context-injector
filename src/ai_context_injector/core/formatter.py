@@ -107,7 +107,8 @@ CRITICAL RULES FOR USING THIS CONTEXT:
         Args:
             items: List of ContextItem objects to format
             current_project: Current project name
-            cross_project_warning: Optional warning about cross-project results
+            cross_project_warning: Optional warning about cross-project results.
+                                 If None, will auto-detect cross-project items.
             
         Returns:
             ContextResponse with formatted_context string and metadata
@@ -128,6 +129,10 @@ CRITICAL RULES FOR USING THIS CONTEXT:
                 total_found=0,
                 filtered_count=0
             )
+        
+        # Auto-detect cross-project if not explicitly provided
+        if cross_project_warning is None:
+            cross_project_warning = self.check_cross_project(items, current_project)
         
         lines = []
         
