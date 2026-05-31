@@ -64,7 +64,7 @@ For detailed documentation, see:
 https://github.com/JDis03/ai-context-injector
 """
 
-__version__ = "0.1.0"
+__version__ = "1.0.0"
 __author__ = "Dark"
 __license__ = "MIT"
 

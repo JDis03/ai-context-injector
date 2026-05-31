@@ -4,12 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ai-context-injector"
-version = "0.1.0"
-description = "Framework-agnostic Python library for tag-based context injection with anti-hallucination safeguards"
+version = "1.0.0"
+description = "Lightweight Python library for tag-based context injection with anti-hallucination safeguards. Zero dependencies, 100% type-safe, <25ms performance."
 readme = "README.md"
-license = {text = "MIT"}
+license = "MIT"
 authors = [
-    {name = "JDis03", email = "your.email@example.com"}
+    {name = "Dark", email = "jdis03@proton.me"}
 ]
 keywords = [
     "ai",
@@ -24,17 +24,18 @@ keywords = [
     "claude",
 ]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Typing :: Typed",
 ]
 requires-python = ">=3.9"
 dependencies = []
