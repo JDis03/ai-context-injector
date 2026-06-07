@@ -222,41 +222,42 @@ class Reranker:
         # Limit to max_candidates
         subset = list(candidates[:max_candidates])
         
-        # Normalize subset to list of dicts with 'content' key
-        normalized = []
+        # Normalize subset to list of tuples for internal processing
+        normalized: List[Tuple[str, float]] = []
         for item in subset:
             if isinstance(item, dict) and 'content' in item:
-                normalized.append(item)
+                normalized.append((str(item['content']), float(item.get('score', 0.5))))
             elif isinstance(item, str):
-                normalized.append({'content': item, 'score': 0.5})
+                normalized.append((item, 0.5))
             elif isinstance(item, (list, tuple)) and len(item) == 2:
-                normalized.append({'content': str(item[0]), 'score': float(item[1])})
+                normalized.append((str(item[0]), float(item[1])))
             else:
-                normalized.append({'content': str(item), 'score': 0.5})
+                normalized.append((str(item), 0.5))
         
         # Try to load model if not already loaded
         if not self._load_model():
-            # Fallback: return original order with dict output
+            # Fallback: return original order
             elapsed = (time.time() - start_time) * 1000
-            result = []
-            for i, item in enumerate(normalized[:top_k]):
-                item['reranked'] = False
-                item['rerank_time_ms'] = elapsed
-                item['original_score'] = item.get('score', 0.5)
-                item['fallback_reason'] = self._fallback_reason
-                result.append(item)
-            return result
+            return [
+                (content, score, {
+                    "reranked": False,
+                    "rerank_time_ms": elapsed,
+                    "original_score": score,
+                    "fallback_reason": self._fallback_reason,
+                })
+                for content, score in normalized[:top_k]
+            ]
         
         # Format pairs: (query, document) for cross-encoder
-        pairs = [(query, item['content']) for item in normalized]
+        pairs = [(query, content) for content, _ in normalized]
         
         # Check cache for each pair
         cached_scores = []
         uncached_indices = []
         uncached_pairs = []
         
-        for i, item in enumerate(normalized):
-            cache_key = self._make_cache_key(query, item['content'])
+        for i, (content, _score) in enumerate(normalized):
+            cache_key = self._make_cache_key(query, content)
             cached = self.cache.get(cache_key)
             
             if cached is not None:
@@ -273,7 +274,7 @@ class Reranker:
                 # Cache predictions
                 for j, (orig_idx, pred) in enumerate(zip(uncached_indices, predictions)):
                     score = float(pred)
-                    content_text = normalized[orig_idx]['content']
+                    content_text = normalized[orig_idx][0]
                     cache_key = self._make_cache_key(query, content_text)
                     self.cache.set(cache_key, score)
                     cached_scores.append((orig_idx, score))
@@ -281,28 +282,29 @@ class Reranker:
             except Exception as e:
                 logger.error(f"Reranker prediction failed: {e}")
                 elapsed = (time.time() - start_time) * 1000
-                result = []
-                for item in normalized[:top_k]:
-                    item['reranked'] = False
-                    item['rerank_time_ms'] = elapsed
-                    item['original_score'] = item.get('score', 0.5)
-                    item['fallback_reason'] = str(e)
-                    result.append(item)
-                return result
+                return [
+                    (content, score, {
+                        "reranked": False,
+                        "rerank_time_ms": elapsed,
+                        "original_score": score,
+                        "fallback_reason": str(e),
+                    })
+                    for content, score in normalized[:top_k]
+                ]
         
         # Sort by reranker score descending
         cached_scores.sort(key=lambda x: x[1], reverse=True)
         
-        # Build result
+        # Build result as tuples
         elapsed = (time.time() - start_time) * 1000
-        result = []
-        for i, score in cached_scores[:top_k]:
-            item = dict(normalized[i])  # copy
-            item['rerank_score'] = score
-            item['reranked'] = True
-            item['rerank_time_ms'] = elapsed
-            item['original_score'] = item.get('score', 0.5)
-            result.append(item)
+        result = [
+            (normalized[i][0], score, {
+                "reranked": True,
+                "rerank_time_ms": elapsed,
+                "original_score": normalized[i][1],
+            })
+            for i, score in cached_scores[:top_k]
+        ]
         
         return result
     
