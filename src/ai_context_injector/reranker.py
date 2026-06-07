@@ -222,30 +222,41 @@ class Reranker:
         # Limit to max_candidates
         subset = list(candidates[:max_candidates])
         
+        # Normalize subset to list of dicts with 'content' key
+        normalized = []
+        for item in subset:
+            if isinstance(item, dict) and 'content' in item:
+                normalized.append(item)
+            elif isinstance(item, str):
+                normalized.append({'content': item, 'score': 0.5})
+            elif isinstance(item, (list, tuple)) and len(item) == 2:
+                normalized.append({'content': str(item[0]), 'score': float(item[1])})
+            else:
+                normalized.append({'content': str(item), 'score': 0.5})
+        
         # Try to load model if not already loaded
         if not self._load_model():
-            # Fallback: return original order
+            # Fallback: return original order with dict output
             elapsed = (time.time() - start_time) * 1000
-            return [
-                (content, score, {
-                    "reranked": False,
-                    "rerank_time_ms": elapsed,
-                    "original_score": score,
-                    "fallback_reason": self._fallback_reason,
-                })
-                for content, score in subset[:top_k]
-            ]
+            result = []
+            for i, item in enumerate(normalized[:top_k]):
+                item['reranked'] = False
+                item['rerank_time_ms'] = elapsed
+                item['original_score'] = item.get('score', 0.5)
+                item['fallback_reason'] = self._fallback_reason
+                result.append(item)
+            return result
         
         # Format pairs: (query, document) for cross-encoder
-        pairs = [(query, content) for content, _ in subset]
+        pairs = [(query, item['content']) for item in normalized]
         
         # Check cache for each pair
         cached_scores = []
         uncached_indices = []
         uncached_pairs = []
         
-        for i, (content, _score) in enumerate(subset):
-            cache_key = self._make_cache_key(query, content)
+        for i, item in enumerate(normalized):
+            cache_key = self._make_cache_key(query, item['content'])
             cached = self.cache.get(cache_key)
             
             if cached is not None:
@@ -262,7 +273,7 @@ class Reranker:
                 # Cache predictions
                 for j, (orig_idx, pred) in enumerate(zip(uncached_indices, predictions)):
                     score = float(pred)
-                    content_text = subset[orig_idx][0]
+                    content_text = normalized[orig_idx]['content']
                     cache_key = self._make_cache_key(query, content_text)
                     self.cache.set(cache_key, score)
                     cached_scores.append((orig_idx, score))
@@ -270,29 +281,28 @@ class Reranker:
             except Exception as e:
                 logger.error(f"Reranker prediction failed: {e}")
                 elapsed = (time.time() - start_time) * 1000
-                return [
-                    (content, score, {
-                        "reranked": False,
-                        "rerank_time_ms": elapsed,
-                        "original_score": score,
-                        "fallback_reason": str(e),
-                    })
-                    for content, score in subset[:top_k]
-                ]
+                result = []
+                for item in normalized[:top_k]:
+                    item['reranked'] = False
+                    item['rerank_time_ms'] = elapsed
+                    item['original_score'] = item.get('score', 0.5)
+                    item['fallback_reason'] = str(e)
+                    result.append(item)
+                return result
         
         # Sort by reranker score descending
         cached_scores.sort(key=lambda x: x[1], reverse=True)
         
         # Build result
         elapsed = (time.time() - start_time) * 1000
-        result = [
-            (subset[i][0], score, {
-                "reranked": True,
-                "rerank_time_ms": elapsed,
-                "original_score": subset[i][1],
-            })
-            for i, score in cached_scores[:top_k]
-        ]
+        result = []
+        for i, score in cached_scores[:top_k]:
+            item = dict(normalized[i])  # copy
+            item['rerank_score'] = score
+            item['reranked'] = True
+            item['rerank_time_ms'] = elapsed
+            item['original_score'] = item.get('score', 0.5)
+            result.append(item)
         
         return result
     
