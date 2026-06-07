@@ -64,7 +64,7 @@ For detailed documentation, see:
 https://github.com/JDis03/ai-context-injector
 """
 
-__version__ = "1.2.0"
+__version__ = "1.3.0"
 __author__ = "Dark"
 __license__ = "MIT"
 
@@ -99,6 +99,9 @@ from .embeddings import (
     search_semantic,
     pair_distance,
 )
+
+# Cross-encoder reranker
+from .reranker import Reranker, rerank
 
 # Provider interface
 from .providers.base import IContextProvider
@@ -142,6 +145,10 @@ __all__ = [
     "cosine_similarity",
     "search_semantic",
     "pair_distance",
+    
+    # Reranker
+    "Reranker",
+    "rerank",
     
     # Provider interface
     "IContextProvider",
