@@ -4,7 +4,7 @@ set -e
 echo "=== Harness Initialization ==="
 
 echo "=== python -m pytest ==="
-python -m pytest
+uv run pytest tests/ -q
 
 echo "=== python -m compileall . ==="
 python -m compileall .

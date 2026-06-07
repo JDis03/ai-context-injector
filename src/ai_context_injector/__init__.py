@@ -91,6 +91,15 @@ from .chunking import (
 )
 from .indexing import index, search, clear_index
 
+# Embeddings and semantic search
+from .embeddings import (
+    embed,
+    embed_many,
+    cosine_similarity,
+    search_semantic,
+    pair_distance,
+)
+
 # Provider interface
 from .providers.base import IContextProvider
 
@@ -126,6 +135,13 @@ __all__ = [
     "index",
     "search",
     "clear_index",
+    
+    # Embeddings
+    "embed",
+    "embed_many",
+    "cosine_similarity",
+    "search_semantic",
+    "pair_distance",
     
     # Provider interface
     "IContextProvider",
