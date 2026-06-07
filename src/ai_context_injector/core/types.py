@@ -5,6 +5,7 @@ This module defines the fundamental data structures used throughout the library:
 - ContextRequest: Request for context retrieval
 - ContextResponse: Formatted response ready for LLM injection
 - ParsedTag: Result of parsing a tag from user input
+- Chunk: A chunk of text produced by a chunking strategy
 """
 
 from dataclasses import dataclass, field
@@ -239,3 +240,39 @@ class ParsedTag:
     def __repr__(self) -> str:
         """String representation for debugging."""
         return f"ParsedTag({self.tag_with_modifier}, query='{self.query}')"
+
+
+@dataclass
+class Chunk:
+    """A chunk of content produced by a chunking strategy.
+    
+    Used by the indexing pipeline to represent structured pieces of content.
+    Each chunk maintains references to its parent document and optional code block metadata.
+    
+    Attributes:
+        content: The chunk text content
+        index: Sequential position within the document (0-based)
+        metadata: Arbitrary metadata dict (JSON-serializable)
+        chunk_type: Type of chunk ("text" or "code")
+        section_title: Title of the section this chunk belongs to (from markdown headers)
+        parent_chunk_id: Reference to parent chunk for code blocks
+        start_line: Starting line number in source document
+        end_line: Ending line number in source document
+        source: Source document identifier
+        language: Language tag for code blocks (e.g., "python", "bash")
+        code_context_before: Context text before the code block (up to 200 chars)
+        code_context_after: Context text after the code block (up to 200 chars)
+    """
+    
+    content: str
+    index: int
+    metadata: dict = field(default_factory=dict)
+    chunk_type: str = "text"
+    section_title: str = ""
+    parent_chunk_id: str = ""
+    start_line: int = 0
+    end_line: int = 0
+    source: str = ""
+    language: str = ""
+    code_context_before: str = ""
+    code_context_after: str = ""

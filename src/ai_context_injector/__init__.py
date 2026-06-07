@@ -64,7 +64,7 @@ For detailed documentation, see:
 https://github.com/JDis03/ai-context-injector
 """
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 __author__ = "Dark"
 __license__ = "MIT"
 
@@ -74,12 +74,22 @@ from .core.types import (
     ContextRequest,
     ContextResponse,
     ParsedTag,
+    Chunk,
 )
 
 # Core functionality
 from .core.parser import TagParser, parse_tags
 from .core.formatter import ContextFormatter, format_context
 from .core.injector import ContextInjector, inject_context
+
+# Chunking and indexing
+from .chunking import (
+    chunk_content,
+    BySizeChunker,
+    ByMarkdownHeadersChunker,
+    ByParagraphChunker,
+)
+from .indexing import index, search, clear_index
 
 # Provider interface
 from .providers.base import IContextProvider
@@ -96,6 +106,7 @@ __all__ = [
     "ContextRequest",
     "ContextResponse",
     "ParsedTag",
+    "Chunk",
     
     # Core functionality
     "TagParser",
@@ -104,6 +115,17 @@ __all__ = [
     "format_context",
     "ContextInjector",
     "inject_context",
+    
+    # Chunking
+    "chunk_content",
+    "BySizeChunker",
+    "ByMarkdownHeadersChunker",
+    "ByParagraphChunker",
+    
+    # Indexing
+    "index",
+    "search",
+    "clear_index",
     
     # Provider interface
     "IContextProvider",

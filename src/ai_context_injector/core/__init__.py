@@ -1,6 +1,6 @@
 """Core components for context injection system."""
 
-from .types import ContextItem, ContextRequest, ContextResponse, ParsedTag
+from .types import ContextItem, ContextRequest, ContextResponse, ParsedTag, Chunk
 from .parser import TagParser, parse_tags
 from .formatter import ContextFormatter, format_context
 from .injector import ContextInjector, inject_context
@@ -10,6 +10,7 @@ __all__ = [
     "ContextRequest",
     "ContextResponse",
     "ParsedTag",
+    "Chunk",
     "TagParser",
     "parse_tags",
     "ContextFormatter",
